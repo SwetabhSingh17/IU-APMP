@@ -289,24 +289,14 @@ if [ -d "$BACKUP_DIR" ]; then
 fi
 
 if [ "$SKIP_PUSH" = false ]; then
-    # Sync database schema using Drizzle
-    print_info "Syncing database schema..."
-    npm run db:setup
+    # Safely prepare and sync database schema using Drizzle (creates schema and default admin without wiping data)
+    print_info "Preparing and syncing database schema safely..."
+    npm run db:ensure
     if [ $? -eq 0 ]; then
-        print_success "Schema sync completed"
+        print_success "Database schema verified and synced successfully"
     else
-        print_warning "Schema sync failed or skipped"
+        print_warning "Database verification failed or skipped"
     fi
-fi
-
-# Seed test data
-print_info "Seeding test data..."
-if [ -f "scripts/seed_test_data.ts" ]; then
-    npm run build 2>/dev/null || true
-    npx tsx scripts/seed_test_data.ts || print_warning "Seeding may have failed or data already exists"
-    print_success "Test data seeded"
-else
-    print_warning "Seed script not found, skipping..."
 fi
 
 # ============================================================================

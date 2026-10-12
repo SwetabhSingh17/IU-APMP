@@ -1,8 +1,8 @@
-# IntegralProjectHub (APMS)
+# IU-APMP (Integral University Academic Project Management Portal)
 
 ## What This Is
 
-Integral University Academic Project Management System (APMS / IntegralProjectHub v2.0.1) is a specialized web platform for students, faculty supervisors, project coordinators, and administrators in the Department of Computer Application. It centralizes and automates the entire academic final-year project lifecycle including team formation, supervisor allotment, project topic approval, student topic selection, milestone tracking, and supervisor evaluations.
+Integral University Academic Project Management Portal (IU-APMP v2.3.1) is a specialized web platform for students, faculty supervisors, project coordinators, and administrators in the Department of Computer Application. It centralizes and automates the entire academic final-year project lifecycle including team formation, supervisor allotment, project topic approval, student topic selection, milestone tracking, and supervisor evaluations.
 
 ## Core Value
 

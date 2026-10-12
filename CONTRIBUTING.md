@@ -1,6 +1,6 @@
-# Contributing to APMS (Academic Project Management System)
+# Contributing to IU-APMP (Integral University Academic Project Management Portal)
 
-Thank you for considering contributing to the Academic Project Management System (APMS)! Contributions help make APMS more reliable, scalable, and useful for departmental project governance.
+Thank you for considering contributing to the Integral University Academic Project Management Portal (IU-APMP)! Contributions help make IU-APMP more reliable, scalable, and useful for departmental project governance.
 
 ---
 

@@ -377,9 +377,9 @@ if ($backupFiles.Count -gt 0) {
     npm run db:restore -- "`"$backupPath`""
     Write-Host "Database restore completed" -ForegroundColor Green
 } else {
-    Write-Host "No backups found. Syncing database schema..." -ForegroundColor Cyan
-    npm run db:setup
-    Write-Host "Schema sync completed" -ForegroundColor Green
+    Write-Host "No backups found. Preparing and syncing database schema safely..." -ForegroundColor Cyan
+    npm run db:ensure
+    Write-Host "Database schema verified and synced successfully" -ForegroundColor Green
 }
 Write-Host ""
 

@@ -1,14 +1,17 @@
-# Roadmap: IntegralProjectHub (APMS)
+# Roadmap: IU-APMP (Integral University Academic Project Management Portal)
 
 ## Overview
 
-This roadmap defines the next evolution cycle of the Integral University Academic Project Management System (APMS). Starting from the solid foundation of v2.0.1, it hardens data integrity during system backups and restores, implements server-side registration gates and input sanitization, replaces mock dashboard feeds with real audit events, and decouples Express route handlers into domain services.
+This roadmap defines the evolution cycle of the Integral University Academic Project Management Portal (IU-APMP v2.3.1). It tracks delivered capabilities across search engine indexing, A-Z backup/topological restore, multi-sheet Excel reporting, dual-action supervisor conflict resolution, dynamic telemetry, transactional atomicity, and ongoing architectural hardening.
 
 ## Completed Milestones
 
 - [v2.1.0: Multi-Word Search & UI/UX Enhancements](milestones/v2.1.0-ROADMAP.md) (2 phases, 4 plans completed 2026-10-06)
+- **v2.2.0: IU-APMP Institutional Rebranding, Complete A-Z Backup & Multi-Page Excel Export** (Completed 2026-10-07)
+- **v2.3.0: Dual-Action Supervisor Conflict Resolution & Dynamic Mentorship Telemetry** (Completed 2026-10-11)
+- **v2.3.1: Transactional Conflict Atomicity, Advisory PUGID Serialization & Governance Hardening** (Completed 2026-10-11)
 
-## Active Phases (Milestone v2.2.0)
+## Future Phases
 
 - [x] **Phase 1: IU-APMP Renaming, A-Z Backup, Topological Restore & Multi-Page Excel Export** - Complete 8-table archive export, safe transactional restore, 8-sheet university Excel reporting, and IU-APMP project rebranding (login page unchanged)
 - [ ] **Phase 2: Security Hardening & Registration Controls** - Enforce server-side registration locks and input sanitization on user submissions
