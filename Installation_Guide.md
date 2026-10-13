@@ -276,6 +276,12 @@ To verify that your installation is working properly and all features (Excel bul
    # Test team management, safe dissolution & supervisor optional fix
    npm run test:teams
 
+   # Test supervisor conflict circular loop fix, advisory PUGID locking & dual-membership index
+   npm run test:conflicts
+
+   # Test live user project status & supervisor telemetry enrichment
+   npm run test:user-status
+
    # Test default password reset, legacy scrypt upgrade & RBAC
    npm run test:password
 

@@ -69,7 +69,9 @@ interface UserData {
   mobile?: string | null;
   department?: string | null;
   topicsCount?: number;
-  projectStatus?: string;
+  projectStatus?: string | null;
+  topicCode?: string | null;
+  topicTitle?: string | null;
 }
 
 export default function UserManagement() {
@@ -888,10 +890,22 @@ export default function UserManagement() {
                                 <span className="font-mono text-xs text-muted-foreground">{user.mobile || "—"}</span>
                               </TableCell>
                               <TableCell>
-                                {user.projectStatus
-                                  ? <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
-                                  : <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">No Project</span>
-                                }
+                                {user.projectStatus ? (
+                                  <span
+                                    className={`px-2 py-1 text-xs rounded-full font-medium ${
+                                      user.projectStatus === "completed"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                                        : "bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300"
+                                    }`}
+                                    title={user.topicTitle ? `${user.topicCode ? `[${user.topicCode}] ` : ""}${user.topicTitle}` : undefined}
+                                  >
+                                    {user.projectStatus === "completed" ? "Completed" : "Active"}
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300">
+                                    No Project
+                                  </span>
+                                )}
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex space-x-2 justify-end">

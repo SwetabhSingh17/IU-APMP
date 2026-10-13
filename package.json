@@ -1,7 +1,7 @@
 {
   "name": "iu-apmp",
   "description": "IU-APMP - Integral University Academic Project Management Portal",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -9,11 +9,13 @@
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "test": "npm run check && tsx scripts/verify_onboarding_and_access_control.ts && tsx scripts/verify_supervisor_onboarding_and_rbac.ts && tsx scripts/verify_bulk_topic_onboarding.ts && tsx scripts/verify_topic_selection_and_routing.ts && tsx scripts/verify_priority_bug_fixes.ts && tsx scripts/verify_password_reset_and_login.ts && tsx scripts/verify_team_management_and_supervisor_fix.ts && tsx scripts/verify_search_indexing.ts && tsx scripts/verify_phase_6_enhancements.ts && tsx scripts/verify_backup_and_excel_export.ts",
+    "test": "npm run check && tsx scripts/verify_onboarding_and_access_control.ts && tsx scripts/verify_supervisor_onboarding_and_rbac.ts && tsx scripts/verify_bulk_topic_onboarding.ts && tsx scripts/verify_topic_selection_and_routing.ts && tsx scripts/verify_priority_bug_fixes.ts && tsx scripts/verify_password_reset_and_login.ts && tsx scripts/verify_team_management_and_supervisor_fix.ts && tsx scripts/verify_search_indexing.ts && tsx scripts/verify_phase_6_enhancements.ts && tsx scripts/verify_backup_and_excel_export.ts && tsx scripts/verify_supervisor_conflict_and_pugid_fix.ts && tsx scripts/verify_user_project_status.ts",
     "test:backup": "tsx scripts/verify_backup_and_excel_export.ts",
     "test:search": "tsx scripts/verify_search_indexing.ts",
     "test:admin-topics": "tsx scripts/verify_phase_6_enhancements.ts",
     "test:teams": "tsx scripts/verify_team_management_and_supervisor_fix.ts",
+    "test:conflicts": "tsx scripts/verify_supervisor_conflict_and_pugid_fix.ts",
+    "test:user-status": "tsx scripts/verify_user_project_status.ts",
     "test:fixes": "tsx scripts/verify_priority_bug_fixes.ts",
     "test:password": "tsx scripts/verify_password_reset_and_login.ts",
     "test:onboarding": "tsx scripts/verify_onboarding_and_access_control.ts",

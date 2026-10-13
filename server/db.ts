@@ -176,6 +176,8 @@ export async function runMigrations() {
         CONSTRAINT user_notification_preferences_user_id_unique UNIQUE (user_id)
       );
       CREATE INDEX IF NOT EXISTS user_notification_preferences_user_id_idx ON user_notification_preferences (user_id);
+
+      CREATE UNIQUE INDEX IF NOT EXISTS student_group_members_accepted_user_idx ON student_group_members (user_id) WHERE status = 'accepted';
     `);
   } catch (colErr) {
     console.warn('Notice: Custom columns/tables check/migration:', colErr);

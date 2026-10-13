@@ -71,7 +71,7 @@ async function verifyBackupAndExcelExport() {
         "Metadata contains IU-APMP portal branding",
         exportResult.metadata?.portalName
     );
-    assert(exportResult.metadata?.version === "2.3.1", "Metadata contains version = '2.3.1'");
+    assert(exportResult.metadata?.version === "2.3.2", "Metadata contains version = '2.3.2'");
     assert(exportResult.metadata?.exportedAt !== undefined, "Metadata contains exportedAt timestamp");
 
     const recordCounts = exportResult.metadata?.recordCounts || {};
@@ -217,6 +217,40 @@ async function verifyBackupAndExcelExport() {
             }
             console.log(`   * Row ${r - 1} -> ${rowVals.join(" | ")}`);
         }
+    }
+
+    // Inspect Faculty Supervisors worksheet (Sheet 3)
+    const supervisorsSheet = workbook.getWorksheet("Faculty Supervisors");
+    if (supervisorsSheet) {
+        const supervisorRows = supervisorsSheet.rowCount - 1; // excluding header
+        console.log(`\n   * Faculty Supervisors row count: ${supervisorRows}`);
+        assert(supervisorRows > 0, "Faculty Supervisors sheet has supervisor rows");
+
+        const empIds: string[] = [];
+        for (let r = 2; r <= supervisorsSheet.rowCount; r++) {
+            const sno = supervisorsSheet.getCell(`A${r}`).value;
+            const empId = (supervisorsSheet.getCell(`B${r}`).value?.toString() || "").trim();
+            const name = supervisorsSheet.getCell(`C${r}`).value?.toString() || "";
+            empIds.push(empId);
+            assert(sno === r - 1, `Supervisor row ${r} S.No is sequential (${sno} === ${r - 1})`);
+            if (r <= 6 || r > supervisorsSheet.rowCount - 2) {
+                console.log(`   * Supervisor Row ${r - 1}: EmpID='${empId}', Name='${name}'`);
+            }
+        }
+
+        // Verify Emp IDs are strictly sorted in natural alphanumeric ascending order
+        let isSorted = true;
+        for (let i = 0; i < empIds.length - 1; i++) {
+            const current = empIds[i];
+            const next = empIds[i + 1];
+            const cmp = current.localeCompare(next, undefined, { numeric: true, sensitivity: "base" });
+            if (cmp > 0) {
+                isSorted = false;
+                console.error(`❌ Sort mismatch at index ${i}: '${current}' comes after '${next}'`);
+                break;
+            }
+        }
+        assert(isSorted, "Faculty Supervisors sheet rows are sorted in ascending order of EmpID");
     }
 
     // -------------------------------------------------------------

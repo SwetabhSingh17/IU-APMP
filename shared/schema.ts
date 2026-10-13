@@ -16,7 +16,8 @@
  *  - notifications        — User notification queue
  *  - sessions             — Express session storage
  */
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, pgEnum, index, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, pgEnum, index, uniqueIndex, json } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -227,6 +228,7 @@ export const studentGroupMembers = pgTable("student_group_members", {
 }, (table) => {
   return {
     userIdGroupIdIdx: index("user_id_group_id_idx").on(table.userId, table.groupId),
+    acceptedUserIdx: uniqueIndex("student_group_members_accepted_user_idx").on(table.userId).where(sql`status = 'accepted'`),
   };
 });
 

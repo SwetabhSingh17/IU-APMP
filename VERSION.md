@@ -1,7 +1,8 @@
 # Version History
 
 ## 📋 Table of Contents
-- [Version 2.3.1 (Current)](#version-231-current)
+- [Version 2.3.2 (Current)](#version-232-current)
+- [Version 2.3.1](#version-231)
 - [Version 2.3.0](#version-230)
 - [Version 2.2.0](#version-220)
 - [Version 2.1.0](#version-210)
@@ -35,7 +36,30 @@
 
 ---
 
-## Version 2.3.1 (Current)
+## Version 2.3.2 (Current)
+### Excel Faculty EmpID Ordering, Dual-Membership Guard, Mobile Backfill & User Status Live Telemetry
+1. **Institutional Excel Export Faculty Supervisors Ordering by EmpID** —
+   - **EmpID Alphanumeric Ordering**: Reordered Sheet 3 ("Faculty Supervisors") in `generateUniversityExcelReport()` (`server/db-storage.ts`) using natural/alphanumeric ascending sort on `empId` (`F00039`, `F00124`, `F00157`, etc.).
+   - **Continuous Sequential Indexing**: Aligned `S.No` sequential numbering (`1, 2, 3... 62`) corresponding to sorted faculty order.
+   - **Automated Verification**: Expanded `scripts/verify_backup_and_excel_export.ts` with strict assertions validating ascending alphanumeric EmpID order and sequential row numbering across the entire faculty directory with 100% test pass.
+2. **Supervisor Conflict Cross-Team Loop Resolution & Single-Group Database Constraint** —
+   - **Root Cause Fix**: Diagnosed and permanently resolved the infinite circular conflict between Team F-04 and Team F-06. The issue originated when student 309 ("Aryan Singh") held accepted memberships in both F-04 (where he was leader) and F-06. Selecting "Copy" for one group repeatedly detected the other group as conflicted due to member overlap.
+   - **Live Production Remediation**: Cleared duplicate student 309 membership from F-06, confirmed leader assignment to F-04 under supervisor Usmani (727), and restored F-06 under supervisor Afaq (726).
+   - **Phantom Topic Cleanup & Sequence Resynchronization**: Pruned 35 unassigned phantom topics generated during recursive resolution attempts, safely preserving all active topics, and resynchronized sequential topic code allocation (`PUGID26340`).
+   - **Partial Unique Database Constraint**: Deployed partial unique index `idx_student_group_members_unique_accepted` on `student_group_members(user_id) WHERE status = 'accepted'`, enforcing at the database engine level that no student can ever simultaneously belong to multiple accepted teams.
+   - **Overlap Validation in Conflict Engine**: Enhanced `resolveSupervisorConflict` in `server/db-storage.ts` to proactively detect and reject any cross-team student overlap before topic cloning or migration.
+3. **Comprehensive Student Mobile Number Provisioning from Official Roster** —
+   - **Excel Roster Ingestion**: Ingested official departmental cohort roster `CA321_Project Lab_Team_Formation_2026-27.xlsx`.
+   - **Enrollment Number Matching**: Safely correlated 701 students by enrollment number (`users.username` / `users.enrollmentNumber`).
+   - **100% Data Population**: Standardized and populated clean 10-digit mobile phone numbers in `users.mobile` across all 701 student accounts with zero data loss, zero schema disruption, and complete protection of all active team and project data.
+4. **Live Student Project Status & Supervisor Metrics in User Management** —
+   - **Dynamic Relation Enrichment**: Enriched `getAllUsers` and `getPaginatedUsers` in `server/db-storage.ts` to query accepted `student_group_members`, active `student_projects`, and allotted `project_topics`.
+   - **Student Status Badges**: Corrected the bug where the Students tab displayed "No Project" despite students holding active projects. Now dynamically reflects `'Active'`, `'Completed'`, or `'No Project'` with color-coded status badges and hover tooltips showing the allotted topic code and title.
+   - **Supervisor Approved Topics**: Calculated and populated the live count of approved topics directly on supervisor user records.
+
+---
+
+## Version 2.3.1
 ### Transactional Conflict Atomicity, Advisory PUGID Serialization & Governance Hardening
 1. **Atomic Database Transactions & Race-Free Advisory PUGID Locking** —
    - **Transaction Isolation**: Wrapped topic cloning, group supervisor update, and `studentProjects` re-pointing inside an atomic PostgreSQL transaction (`db.transaction(async (tx) => { ... })`) using the dedicated `tx` executor across all database writes.

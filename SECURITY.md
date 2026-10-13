@@ -7,7 +7,7 @@ This document outlines the security policies, supported versions, protective mea
 ## 📋 Table of Contents
 
 - [Supported Versions](#supported-versions)
-- [Security Posture (v2.3.1)](#security-posture-v231)
+- [Security Posture (v2.3.2)](#security-posture-v232)
   - [Authentication & Cryptography](#authentication--cryptography)
   - [Access Control & Authorization](#access-control--authorization)
   - [Network & Infrastructure Security](#network--infrastructure-security)
@@ -22,14 +22,14 @@ Currently, the following versions of this project are actively supported with se
 
 | Version | Supported | Notes |
 |:---|:---:|:---|
-| **v2.x** | ✅ | Actively supported (Current production release: v2.3.1) |
+| **v2.x** | ✅ | Actively supported (Current production release: v2.3.2) |
 | **v1.9.x** | ✅ | Critical security maintenance |
 | **v1.8.x** | ✅ | Legacy security maintenance |
 | **< v1.8** | ❌ | Unsupported; please upgrade to v2.x |
 
 ---
 
-## Security Posture (v2.3.1)
+## Security Posture (v2.3.2)
 
 IU-APMP ships with the following protections in place:
 
@@ -42,6 +42,7 @@ IU-APMP ships with the following protections in place:
 
 ### Access Control & Authorization
 - **Authorization** — Role-based access control (Admin / Coordinator / Supervisor / Student) enforced server-side via `requireRole()` plus per-resource ownership checks (projects, assessments, notifications).
+- **Single-Team Integrity & Concurrency Guard** — Partial unique database index (`idx_student_group_members_unique_accepted` on `student_group_members(user_id) WHERE status = 'accepted'`) guarantees at the database level that a student can never concurrently belong to multiple accepted teams.
 - **Consolidated Route Authorization & Shadowing Elimination** — User management routes (`POST`, `PATCH`, `DELETE` under `/api/admin/users`) are strictly consolidated into `server/routes/admin.ts` with explicit RBAC checks, eliminating route-shadowing vulnerabilities.
 - **Strict Cohort/Program Isolation** — BCA and MCA topic visibility, team rosters, and proposal catalogs are strictly partitioned; students are isolated to their registered curriculum to prevent cross-cohort data leakage.
 - **Team Access Control, Safe Dissolution & Account Retention** — Students and Supervisors are prohibited from modifying or leaving project teams. Only Administrators and Coordinators have authorization to modify team rosters, reassign supervisor mentorship, or dissolve teams. Team dissolution strictly retains member student user accounts intact without data loss, safely unlinking team associations and milestones so students remain active and eligible for future team allotment.

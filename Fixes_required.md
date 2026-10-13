@@ -24,6 +24,7 @@ This document outlines suggested architectural, security, and maintenance improv
   - [8. Extended Administrative Capabilities](#8-extended-administrative-capabilities)
   - [9. Frontend Polish](#9-frontend-polish)
 - [✅ Resolved Issues & Release Changelog](#resolved-issues--release-changelog)
+  - [v2.3.2 - Completed & Verified](#v232---completed--verified)
   - [v2.3.1 - Completed & Verified](#v231---completed--verified)
   - [v2.3.0 - Completed & Verified](#v230---completed--verified)
   - [v2.2.0 - Completed & Verified](#v220---completed--verified)
@@ -231,6 +232,23 @@ This document outlines suggested architectural, security, and maintenance improv
 ---
 
 ## ✅ Resolved Issues & Release Changelog
+
+### v2.3.2 - Completed & Verified
+
+- [x] **Faculty Supervisors Excel Worksheet Sorting by EmpID** — **COMPLETED**
+  - **Affected Files:** `server/db-storage.ts`, `scripts/verify_backup_and_excel_export.ts`
+  - **Resolution:** Re-ordered the "Faculty Supervisors" sheet (Sheet 3) in `generateUniversityExcelReport()` using natural/alphanumeric ascending sort on `empId` (`F00039`, `F00124`, `F00157`, etc.). Aligned `S.No` sequential numbering (`1..62`). Added automated verification assertions in `scripts/verify_backup_and_excel_export.ts` confirming strictly sorted alphanumeric order.
+- [x] **Supervisor Conflict Cross-Team Circular Loop & Dual-Membership Prevention** — **COMPLETED**
+  - **Affected Files:** `server/db-storage.ts`, `server/db.ts`, `shared/schema.ts`, `scripts/verify_supervisor_conflict_and_pugid_fix.ts`
+  - **Resolution:** Resolved critical circular conflict between Team F-04 and Team F-06 caused by duplicate accepted membership of student 309 ("Aryan Singh"). Pruned duplicate membership, realigned F-04 to supervisor Usmani (727) and F-06 to supervisor Afaq (726), purged 35 phantom topics, and resynchronized topic code sequence to `PUGID26340`. Created partial unique PostgreSQL index `idx_student_group_members_unique_accepted` on `student_group_members(user_id) WHERE status = 'accepted'` preventing any student from joining multiple teams concurrently. Added cross-team student overlap validation in `resolveSupervisorConflict`.
+- [x] **100% Student Mobile Numbers Population from Official Excel Roster** — **COMPLETED**
+  - **Affected Files:** `scripts/update_student_mobiles_from_excel.ts`
+  - **Resolution:** Ingested official departmental cohort file `CA321_Project Lab_Team_Formation_2026-27.xlsx`, extracted student contact records, and matched all 701 active students by enrollment number (`users.username` / `users.enrollmentNumber`). Cleaned and populated valid 10-digit phone numbers in `users.mobile` with zero data loss and zero impact on other records.
+- [x] **Live Student Project Status & Supervisor Topics Telemetry in User Management** — **COMPLETED**
+  - **Affected Files:** `server/db-storage.ts`, `client/src/pages/user-management.tsx`, `scripts/verify_user_project_status.ts`
+  - **Resolution:** Enriched `getAllUsers` and `getPaginatedUsers` in `server/db-storage.ts` to query accepted team memberships, student projects, and assigned project topics. Corrected the Students tab displaying "No Project" despite students holding active projects; now renders live color-coded status badges ('Active', 'Completed', 'No Project') with hover tooltips showing allotted topic code and title. Populated approved topic count for supervisors.
+
+---
 
 ### v2.3.1 - Completed & Verified
 

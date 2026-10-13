@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# IU-APMP (Integral University Academic Project Management Portal v2.3.1) - Automatic Installation Script
+# IU-APMP (Integral University Academic Project Management Portal v2.3.2) - Automatic Installation Script
 # Created by: Swetabh Singh
 # For macOS and Linux Systems
 # ============================================================================

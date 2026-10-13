@@ -317,10 +317,12 @@ export class DBStorage {
         (
           SELECT COUNT(*)
           FROM student_group_members sgm2
+          INNER JOIN users u2 ON u2.id = sgm2.user_id AND u2.group_id = sg.id AND u2.is_deleted = false
           WHERE sgm2.group_id = sg.id AND sgm2.status = 'accepted'
         ) as "membersCount"
       FROM student_groups sg
       INNER JOIN student_group_members sgm ON sgm.group_id = sg.id AND sgm.status = 'accepted'
+      INNER JOIN users u_student ON u_student.id = sgm.user_id AND u_student.group_id = sg.id AND u_student.is_deleted = false
       INNER JOIN student_projects sp ON sp.student_id = sgm.user_id
       INNER JOIN project_topics pt ON pt.id = sp.topic_id
       INNER JOIN users u_old ON u_old.id = pt.submitted_by_id
@@ -414,9 +416,12 @@ export class DBStorage {
     const acceptedMembershipRows = await db
       .select({ userId: studentGroupMembers.userId })
       .from(studentGroupMembers)
+      .innerJoin(users, eq(users.id, studentGroupMembers.userId))
       .where(and(
         eq(studentGroupMembers.groupId, group.id),
-        eq(studentGroupMembers.status, "accepted")
+        eq(studentGroupMembers.status, "accepted"),
+        eq(users.groupId, group.id),
+        eq(users.isDeleted, false)
       ));
     const memberIds = acceptedMembershipRows.map(m => m.userId);
 
@@ -586,10 +591,11 @@ export class DBStorage {
     return !!deleted;
   }
 
-  async getAllUsers(course?: string): Promise<User[]> {
+  async getAllUsers(course?: string): Promise<(User & { projectStatus?: string | null; topicCode?: string | null; topicTitle?: string | null; topicsCount?: number })[]> {
+    let rawUsers: User[];
     if (course) {
       const normalizedCourse = course.trim().toUpperCase();
-      return (await db.select().from(users).where(
+      rawUsers = (await db.select().from(users).where(
         and(
           eq(users.isDeleted, false),
           or(
@@ -600,8 +606,120 @@ export class DBStorage {
           )
         )
       ).orderBy(asc(users.id))) as User[];
+    } else {
+      rawUsers = (await db.select().from(users).where(eq(users.isDeleted, false)).orderBy(asc(users.id))) as User[];
     }
-    return (await db.select().from(users).where(eq(users.isDeleted, false)).orderBy(asc(users.id))) as User[];
+    return this.enrichUsersWithProjectAndTopicStatus(rawUsers);
+  }
+
+  /**
+   * Enriches user objects with their live project allotment status and topic details for students,
+   * as well as approved topics count for supervisors.
+   */
+  async enrichUsersWithProjectAndTopicStatus<T extends User>(
+    usersList: T[]
+  ): Promise<(T & { projectStatus?: string | null; topicCode?: string | null; topicTitle?: string | null; topicsCount?: number })[]> {
+    if (usersList.length === 0) return [];
+
+    const supervisorIds = usersList
+      .filter((u) => u.role === UserRole.SUPERVISOR || u.role === "teacher")
+      .map((u) => u.id);
+    const studentUsers = usersList.filter((u) => u.role === UserRole.STUDENT);
+
+    const studentProjectMap = new Map<number, { status: string; topicCode: string | null; topicTitle: string | null }>();
+    const groupProjectMap = new Map<number, { status: string; topicCode: string | null; topicTitle: string | null }>();
+
+    if (studentUsers.length > 0) {
+      const allStudentProjects = await db
+        .select({
+          studentId: studentProjects.studentId,
+          status: studentProjects.status,
+          topicId: studentProjects.topicId,
+          topicCode: projectTopics.topicCode,
+          topicTitle: projectTopics.title,
+        })
+        .from(studentProjects)
+        .leftJoin(projectTopics, eq(studentProjects.topicId, projectTopics.id));
+
+      const studentGroupLookup = new Map<number, number>();
+      for (const u of studentUsers) {
+        if (u.groupId) {
+          studentGroupLookup.set(u.id, u.groupId);
+        }
+      }
+
+      for (const sp of allStudentProjects) {
+        studentProjectMap.set(sp.studentId, {
+          status: sp.status,
+          topicCode: sp.topicCode,
+          topicTitle: sp.topicTitle,
+        });
+        const gId = studentGroupLookup.get(sp.studentId);
+        if (gId && !groupProjectMap.has(gId)) {
+          groupProjectMap.set(gId, {
+            status: sp.status,
+            topicCode: sp.topicCode,
+            topicTitle: sp.topicTitle,
+          });
+        }
+      }
+    }
+
+    const supervisorTopicCountMap = new Map<number, number>();
+    if (supervisorIds.length > 0) {
+      const topicCounts = await db
+        .select({
+          supervisorId: projectTopics.submittedById,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(projectTopics)
+        .where(
+          and(
+            eq(projectTopics.isDeleted, false),
+            inArray(projectTopics.submittedById, supervisorIds)
+          )
+        )
+        .groupBy(projectTopics.submittedById);
+
+      for (const tc of topicCounts) {
+        if (tc.supervisorId) {
+          supervisorTopicCountMap.set(tc.supervisorId, Number(tc.count));
+        }
+      }
+    }
+
+    return usersList.map((u) => {
+      let projectStatus: string | null = null;
+      let topicCode: string | null = null;
+      let topicTitle: string | null = null;
+
+      if (u.role === UserRole.STUDENT) {
+        const direct = studentProjectMap.get(u.id);
+        if (direct) {
+          projectStatus = direct.status;
+          topicCode = direct.topicCode;
+          topicTitle = direct.topicTitle;
+        } else if (u.groupId && groupProjectMap.has(u.groupId)) {
+          const grp = groupProjectMap.get(u.groupId)!;
+          projectStatus = grp.status;
+          topicCode = grp.topicCode;
+          topicTitle = grp.topicTitle;
+        }
+      }
+
+      const topicsCount =
+        u.role === UserRole.SUPERVISOR || u.role === "teacher"
+          ? supervisorTopicCountMap.get(u.id) || 0
+          : undefined;
+
+      return {
+        ...u,
+        projectStatus,
+        topicCode,
+        topicTitle,
+        topicsCount,
+      };
+    });
   }
 
   async getUserProfile(id: number): Promise<User | undefined> {
@@ -700,7 +818,11 @@ export class DBStorage {
     const existingTopicsWithCodes = await executor
       .select({ topicCode: projectTopics.topicCode })
       .from(projectTopics)
-      .where(and(isNotNull(projectTopics.topicCode), like(projectTopics.topicCode, "PUGID26%")));
+      .where(and(
+        isNotNull(projectTopics.topicCode),
+        like(projectTopics.topicCode, "PUGID26%"),
+        eq(projectTopics.isDeleted, false)
+      ));
 
     let maxSequence = 0;
     for (const t of existingTopicsWithCodes) {
@@ -1179,6 +1301,11 @@ export class DBStorage {
 
     // Add creator as accepted member only if they are a student
     if (isStudent) {
+      await db.delete(studentGroupMembers).where(and(
+        eq(studentGroupMembers.userId, creatorId),
+        ne(studentGroupMembers.groupId, newGroup.id)
+      ));
+
       await db.insert(studentGroupMembers).values({
         userId: creatorId,
         groupId: newGroup.id,
@@ -1195,6 +1322,13 @@ export class DBStorage {
 
       for (const invitedUser of invitedUsers) {
         if (invitedUser.id !== creatorId) {
+          if (autoAccept) {
+            await db.delete(studentGroupMembers).where(and(
+              eq(studentGroupMembers.userId, invitedUser.id),
+              ne(studentGroupMembers.groupId, newGroup.id)
+            ));
+          }
+
           // Add as pending or accepted member
           await db.insert(studentGroupMembers).values({
             userId: invitedUser.id,
@@ -1267,11 +1401,30 @@ export class DBStorage {
     if (addedEnrollmentNumbers.length > 0) {
       const addedUsers = await db.select().from(users).where(inArray(users.enrollmentNumber, addedEnrollmentNumbers));
       for (const addedUser of addedUsers) {
-        await db.insert(studentGroupMembers).values({
-          userId: addedUser.id,
-          groupId: groupId,
-          status: 'accepted'
-        });
+        // Remove from any prior group memberships to prevent duplicate accepted memberships
+        await db.delete(studentGroupMembers).where(and(
+          eq(studentGroupMembers.userId, addedUser.id),
+          ne(studentGroupMembers.groupId, groupId)
+        ));
+
+        const [existing] = await db.select()
+          .from(studentGroupMembers)
+          .where(and(
+            eq(studentGroupMembers.userId, addedUser.id),
+            eq(studentGroupMembers.groupId, groupId)
+          ));
+
+        if (existing) {
+          if (existing.status !== 'accepted') {
+            await db.update(studentGroupMembers).set({ status: 'accepted', updatedAt: new Date() }).where(eq(studentGroupMembers.id, existing.id));
+          }
+        } else {
+          await db.insert(studentGroupMembers).values({
+            userId: addedUser.id,
+            groupId: groupId,
+            status: 'accepted'
+          });
+        }
         await db.update(users).set({ groupId: groupId }).where(eq(users.id, addedUser.id));
         await this.createNotification({
           userId: addedUser.id,
@@ -1286,7 +1439,11 @@ export class DBStorage {
     const members = await db.select({ user: users })
       .from(studentGroupMembers)
       .innerJoin(users, eq(studentGroupMembers.userId, users.id))
-      .where(eq(studentGroupMembers.groupId, groupId));
+      .where(and(
+        eq(studentGroupMembers.groupId, groupId),
+        eq(users.groupId, groupId),
+        eq(users.isDeleted, false)
+      ));
 
     return members.map(m => m.user as User);
   }
@@ -1297,7 +1454,9 @@ export class DBStorage {
       .innerJoin(users, eq(studentGroupMembers.userId, users.id))
       .where(and(
         eq(studentGroupMembers.groupId, groupId),
-        eq(studentGroupMembers.status, 'accepted')
+        eq(studentGroupMembers.status, 'accepted'),
+        eq(users.groupId, groupId),
+        eq(users.isDeleted, false)
       ));
     return members.map(m => m.user as User);
   }
@@ -1316,11 +1475,30 @@ export class DBStorage {
   }
 
   async addStudentToGroup(userId: number, groupId: number): Promise<boolean> {
-    await db.insert(studentGroupMembers).values({
-      userId,
-      groupId,
-      status: 'accepted'
-    });
+    // Remove from any prior group memberships to prevent duplicate accepted memberships
+    await db.delete(studentGroupMembers).where(and(
+      eq(studentGroupMembers.userId, userId),
+      ne(studentGroupMembers.groupId, groupId)
+    ));
+
+    const [existing] = await db.select()
+      .from(studentGroupMembers)
+      .where(and(
+        eq(studentGroupMembers.userId, userId),
+        eq(studentGroupMembers.groupId, groupId)
+      ));
+
+    if (existing) {
+      if (existing.status !== 'accepted') {
+        await db.update(studentGroupMembers).set({ status: 'accepted', updatedAt: new Date() }).where(eq(studentGroupMembers.id, existing.id));
+      }
+    } else {
+      await db.insert(studentGroupMembers).values({
+        userId,
+        groupId,
+        status: 'accepted'
+      });
+    }
     await db.update(users).set({ groupId }).where(eq(users.id, userId));
 
     // If group already has an active project, automatically link this student to that project
@@ -2027,7 +2205,7 @@ export class DBStorage {
     const metadata = {
       portalName: "Integral University Academic Project Management Portal (IU-APMP)",
       portalCode: "IU-APMP",
-      version: "2.3.1",
+      version: "2.3.2",
       exportedAt: timestamp,
       recordCounts: {
         studentGroups: groupsData.length,
@@ -2968,7 +3146,16 @@ export class DBStorage {
       { header: "Mentorship Load", key: "load", width: 18 }
     ];
 
-    supervisors.forEach((sup, idx) => {
+    const sortedSupervisors = [...supervisors].sort((a, b) => {
+      const idA = (a.empId || "").trim();
+      const idB = (b.empId || "").trim();
+      if (!idA && !idB) return a.id - b.id;
+      if (!idA) return 1;
+      if (!idB) return -1;
+      return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: "base" });
+    });
+
+    sortedSupervisors.forEach((sup, idx) => {
       const supTopics = allTopics.filter(t => t.submittedById === sup.id);
       const supApproved = supTopics.filter(t => t.status === "approved").length;
       const mentored = allGroups.filter(g => g.supervisorId === sup.id).length;
@@ -3195,7 +3382,7 @@ export class DBStorage {
 
   // --- Paginated Methods ---
 
-  async getPaginatedUsers(page: number, limit: number, course?: string): Promise<import('@shared/schema').PaginatedResponse<User>> {
+  async getPaginatedUsers(page: number, limit: number, course?: string): Promise<import('@shared/schema').PaginatedResponse<User & { projectStatus?: string | null; topicCode?: string | null; topicTitle?: string | null; topicsCount?: number }>> {
     const conditions = [eq(users.isDeleted, false)];
     if (course) {
       const normalizedCourse = course.trim().toUpperCase();
@@ -3210,7 +3397,8 @@ export class DBStorage {
     const countQuery = await db.select({ count: sql<number>`count(*)` }).from(users).where(and(...conditions));
     const total = Number(countQuery[0].count);
     
-    const data = await db.select().from(users).where(and(...conditions)).orderBy(asc(users.id)).limit(limit).offset((page - 1) * limit) as User[];
+    const rawData = await db.select().from(users).where(and(...conditions)).orderBy(asc(users.id)).limit(limit).offset((page - 1) * limit) as User[];
+    const data = await this.enrichUsersWithProjectAndTopicStatus(rawData);
     
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
@@ -3585,6 +3773,12 @@ export class DBStorage {
 
         // Set each student's groupId in users table and ensure accepted membership
         for (const item of studentItems) {
+          // Clean up any prior group memberships for this student to prevent multi-group conflicts
+          await db.delete(studentGroupMembers).where(and(
+            eq(studentGroupMembers.userId, item.studentId),
+            ne(studentGroupMembers.groupId, currentGroupId)
+          ));
+
           await db.update(users)
             .set({ groupId: currentGroupId, updatedAt: new Date() })
             .where(eq(users.id, item.studentId));

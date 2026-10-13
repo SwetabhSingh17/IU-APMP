@@ -1,10 +1,10 @@
-# IU-APMP (Integral University Academic Project Management Portal v2.3.1) - Windows Installation Script
+# IU-APMP (Integral University Academic Project Management Portal v2.3.2) - Windows Installation Script
 # Created by: Swetabh Singh
 # Run with: PowerShell -ExecutionPolicy Bypass -File install_windows.ps1
 
 Write-Host ""
 Write-Host "========================================"
-Write-Host "  IU-APMP (Academic Project Management Portal v2.3.1) - Setup"
+Write-Host "  IU-APMP (Academic Project Management Portal v2.3.2) - Setup"
 Write-Host "  By - Swetabh Singh"
 Write-Host "========================================"
 Write-Host ""

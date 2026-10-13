@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# IU-APMP (Integral University Academic Project Management Portal v2.3.1)
+# IU-APMP (Integral University Academic Project Management Portal v2.3.2)
 # Network Access Server Launcher
 # ============================================================================
 
@@ -24,7 +24,7 @@ if [ -z "$IP" ]; then
 fi
 
 echo "========================================="
-echo "Starting IU-APMP Server for Network (v2.3.1)"
+echo "Starting IU-APMP Server for Network (v2.3.2)"
 echo "========================================="
 echo ""
 echo "Local IP Address: $IP"

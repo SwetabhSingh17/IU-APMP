@@ -129,7 +129,7 @@ export default function SystemManagement() {
                     fileSizeKB: `${sizeKB} KB`,
                     isZip: true,
                     portalName: metadata?.portalName || "IU-APMP Archive",
-                    version: metadata?.version || "2.3.1",
+                    version: metadata?.version || "2.3.2",
                     timestamp: metadata?.exportedAt || "N/A",
                     recordCounts
                 });
@@ -153,7 +153,7 @@ export default function SystemManagement() {
                     fileSizeKB: `${sizeKB} KB`,
                     isZip: false,
                     portalName: metadata.portalName || "IU-APMP JSON Backup",
-                    version: metadata.version || "2.3.1",
+                    version: metadata.version || "2.3.2",
                     timestamp: metadata.exportedAt || data.timestamp || "N/A",
                     recordCounts
                 });

@@ -121,6 +121,24 @@ APMS is a comprehensive web-based project management system for educational inst
     - **Vertical Cell Merging**: Applies multi-row vertical cell merging across `TeamID` (bold, centered), `Project` (centered, text-wrapped), and `Allotment` (centered, multi-line wrapped supervisor name, designation, and contact details) for each team cohort, while maintaining sequential 1-based numbering in `SNo.`.
     - Completely read-only with non-blocking database queries and zero data mutations.
 
+25. **Faculty Supervisors Excel Worksheet Ordering by EmpID**:
+    - Sheet 3 ("Faculty Supervisors") in `generateUniversityExcelReport()` sorts faculty records in natural/alphanumeric ascending order of `EmpID` (`F00039`, `F00124`, `F00157`, etc.).
+    - Preserves sequential `S.No` numbering (`1..62`), correct load metrics (`mentored/5`), approved topics count, and complete departmental contact information.
+    - Verified by automated assertions in `scripts/verify_backup_and_excel_export.ts`.
+
+26. **Single-Group Student Membership Enforcement & Conflict Prevention**:
+    - Partial unique database index `idx_student_group_members_unique_accepted` on `student_group_members(user_id) WHERE status = 'accepted'` guarantees that a student can never hold multiple accepted memberships simultaneously.
+    - Resolves the circular conflict loop between overlapping teams (e.g. F-04 and F-06).
+    - `resolveSupervisorConflict` in `server/db-storage.ts` additionally validates against cross-team member overlap before executing topic cloning or migration.
+
+27. **Complete Student Mobile Number Provisioning**:
+    - 100% of student accounts (701/701) are provisioned with verified 10-digit mobile numbers in `users.mobile` from the official university roster (`CA321_Project Lab_Team_Formation_2026-27.xlsx`), matched by enrollment number.
+
+28. **Live Student Project Status & Supervisor Telemetry in User Management**:
+    - `getAllUsers` and `getPaginatedUsers` dynamically join accepted `student_group_members`, active `student_projects`, and allotted `project_topics`.
+    - Students tab displays accurate, real-time status badges (`Active` with green badge and topic tooltip, `Completed` with blue badge, or `No Project` with gray badge).
+    - Supervisors display live approved topic counts.
+
 ---
 
 ## 2. Technology Stack
