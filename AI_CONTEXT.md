@@ -114,6 +114,13 @@ APMS is a comprehensive web-based project management system for educational inst
     - `/supervisor-management` and the summary aggregation endpoint `GET /api/admin/supervisors-summary` are strictly restricted to `Admin` and `Coordinator` roles to protect comprehensive faculty telemetry and student group rosters.
     - Faculty supervisors manage their submitted topics, review allotment statuses, and inspect assigned student teams through their dedicated `/projects` ("My Topics & Teams") portal.
 
+24. **Multi-Sheet University Excel Reporting & Aligned Student Details Layout (`/api/admin/export-excel`)**:
+    - Generates an official 8-sheet master Excel workbook (`.xlsx`) via `generateUniversityExcelReport()` in `server/db-storage.ts` using ExcelJS.
+    - **Sheet 2: Student Details**: Formats the student directory with the exact standard 8 columns: `SNo.`, `TeamID`, `Enrollment`, `Student Name`, `Mobile No.`, `Email Id`, `Project`, and `Allotment`.
+    - **Natural Team ID Sorting**: Groups students strictly by Team ID in natural alphanumeric order (`A-01` before `A-02` before `A-10`, followed by `B-01`, etc.), displaying complete student team rosters consecutively with team leaders first.
+    - **Vertical Cell Merging**: Applies multi-row vertical cell merging across `TeamID` (bold, centered), `Project` (centered, text-wrapped), and `Allotment` (centered, multi-line wrapped supervisor name, designation, and contact details) for each team cohort, while maintaining sequential 1-based numbering in `SNo.`.
+    - Completely read-only with non-blocking database queries and zero data mutations.
+
 ---
 
 ## 2. Technology Stack
@@ -165,6 +172,7 @@ APMS/
     ├── verify_onboarding_and_access_control.ts      # Student bulk onboarding suite (npm run test:onboarding)
     ├── verify_supervisor_onboarding_and_rbac.ts     # Faculty onboarding suite (npm run test:supervisor)
     ├── verify_bulk_topic_onboarding.ts              # Topic bulk upload & PUGID suite (npm run test:topics)
+    ├── verify_backup_and_excel_export.ts            # Backup, topological restore & university Excel export suite (npm run test:backup)
     └── e2e_verify.ts                                # End-to-end integration test suite (npm run test:e2e)
 ```
 

@@ -1,6 +1,6 @@
 ╔════════════════════════════════════════════════════════════════════════╗
 ║                                                                        ║
-║          INTEGRAL PROJECT HUB - SUPER EASY SETUP GUIDE                ║
+║          IU-APMP - SUPER EASY SETUP GUIDE                              ║
 ║                                                                        ║
 ║          Welcome! This guide will help you get started.               ║
 ║          No technical knowledge needed!                               ║
@@ -31,7 +31,7 @@ scrolling by - that's normal! The computer is just telling you what it's doing.
 
 STEP 1: Find the Setup_Assistant folder
    • Open File Explorer (the folder icon on your taskbar)
-   • Navigate to where you saved the APMS folder
+   • Navigate to where you saved the IU-APMP folder
    • Open the "Setup_Assistant" folder inside it
 
 STEP 2: Run the installation
@@ -110,12 +110,12 @@ STEP 1: Open Terminal
 STEP 2: Go to the Setup_Assistant folder
    • In Terminal, type: cd 
    • DON'T PRESS ENTER YET!
-   • Open Finder and find your APMS folder
+   • Open Finder and find your IU-APMP folder
    • Drag the "Setup_Assistant" folder into the Terminal window
    • Now press Enter
    
    💡 Example: You should see something like:
-      cd /Users/YourName/Desktop/APMS/Setup_Assistant
+      cd /Users/YourName/Desktop/IU-APMP/Setup_Assistant
 
 STEP 3: Make the installation file runnable
    • Type this exactly: chmod +x install_mac_linux.sh
@@ -166,7 +166,7 @@ STEP 1: Open Terminal
    • Or search for "Terminal" in your application menu
 
 STEP 2: Go to the Setup_Assistant folder
-   • Type: cd /path/to/APMS/Setup_Assistant
+   • Type: cd /path/to/IU-APMP/Setup_Assistant
    • Replace "/path/to" with where you saved the project
    • Press Enter
 
@@ -241,12 +241,12 @@ SOLUTION: The website cannot talk to the database. This usually means:
       Fix: Open the .env file in Notepad and change DB_PASSWORD to match.
    2. The PostgreSQL service isn't running.
       Fix: Search Windows for "Services", find "postgresql", and click Start.
-   3. Once fixed, manually run "npm run db:setup" in the APMS folder.
+   3. Once fixed, manually run "npm run db:setup" in the IU-APMP folder.
 
 PROBLEM: Can't find the file
 SOLUTION: Make sure you:
    1. Unzipped the project folder completely
-   2. Look inside APMS folder
+   2. Look inside IU-APMP folder
    3. Then inside Setup_Assistant folder
 
 
@@ -268,7 +268,7 @@ If the automatic installation doesn't work (or gets blocked by Antivirus), you c
    • IMPORTANT: Set the password to "root123" when asked!
 
 3. Run the commands manually:
-   • Open your Terminal or Command Prompt in the APMS folder
+   • Open your Terminal or Command Prompt in the IU-APMP folder
    • Type: npm install
    • Copy .env.example to .env
    • Type: npm run db:setup
@@ -283,13 +283,13 @@ Once everything is installed, you DON'T need to run the installation
 script again. To start the website in the future:
 
 WINDOWS:
-   1. Open PowerShell in the APMS folder
+   1. Open PowerShell in the IU-APMP folder
    2. Type: npm run dev
    3. Press Enter
 
 MAC/LINUX:
    1. Open Terminal
-   2. Navigate to APMS folder
+   2. Navigate to IU-APMP folder
    3. Type: npm run dev
    4. Press Enter
 

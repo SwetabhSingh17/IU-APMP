@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================================
-REM APMS (Academic Project Management System) - Windows Installation Launcher
+REM IU-APMP (Integral University Academic Project Management Portal) - Windows Installation Launcher
 REM Created by: Swetabh Singh
 REM This batch file bypasses PowerShell execution policy restrictions
 REM ============================================================================

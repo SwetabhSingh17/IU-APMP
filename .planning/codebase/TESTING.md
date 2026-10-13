@@ -22,6 +22,9 @@ last_mapped_at: 2026-10-06
 ```bash
 npm test                                              # Type check + all verification test suites
 npm run check                                         # TypeScript compilation & type checking
+npm run test:backup                                   # Full system backup, restore & university Excel export suite
+npm run test:search                                   # Multi-word search tokenization & engine benchmark
+npm run test:admin-topics                             # Direct admin topic creation & PUGID suite
 npm run test:teams                                    # Team management & supervisor optional test
 npm run test:fixes                                    # Priority bug fixes verification
 npm run test:password                                 # Password reset & login verification
@@ -56,10 +59,13 @@ npm run test:e2e                                      # End-to-end multi-role ve
 scripts/
 ├── e2e_verify.ts
 ├── verify_admin_coordinator_projects.ts
+├── verify_backup_and_excel_export.ts
 ├── verify_bulk_topic_onboarding.ts
 ├── verify_onboarding_and_access_control.ts
 ├── verify_password_reset_and_login.ts
+├── verify_phase_6_enhancements.ts
 ├── verify_priority_bug_fixes.ts
+├── verify_search_indexing.ts
 ├── verify_supervisor_onboarding_and_rbac.ts
 ├── verify_team_management_and_supervisor_fix.ts
 └── verify_topic_selection_and_routing.ts

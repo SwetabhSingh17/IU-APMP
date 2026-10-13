@@ -420,7 +420,7 @@ export default function SystemManagement() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Exports a formatted 8-sheet master workbook (.xlsx) with Overview KPIs, Students Master, Faculty Supervisors, Teams, Topics Catalog, Allocations, Assessments, and Milestones.
+                            Exports a formatted 8-sheet master workbook (.xlsx) with Overview KPIs, Student Details, Faculty Supervisors, Teams, Topics Catalog, Allocations, Assessments, and Milestones.
                         </p>
                         <Button className="w-full gap-2" variant="secondary" onClick={() => exportExcelMutation.mutate()} disabled={exportExcelMutation.isPending}>
                             <FileDown className="h-4 w-4" />

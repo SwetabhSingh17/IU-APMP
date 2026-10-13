@@ -144,7 +144,7 @@ async function verifyBackupAndExcelExport() {
 
     const expectedSheets = [
         "Overview & Summary",
-        "Students Master List",
+        "Student Details",
         "Faculty Supervisors",
         "Project Teams",
         "Project Topics Catalog",
@@ -172,12 +172,51 @@ async function verifyBackupAndExcelExport() {
         assert(portalNotes.includes("Integral University"), "Overview sheet contains Integral University title in C2", portalNotes);
     }
 
-    // Inspect Students Master List
-    const studentsSheet = workbook.getWorksheet("Students Master List");
+    // Inspect Student Details
+    const studentsSheet = workbook.getWorksheet("Student Details") || workbook.getWorksheet("Students Master List");
     if (studentsSheet) {
         const studentRows = studentsSheet.rowCount - 1; // excluding header
-        console.log(`   * Students Master List row count: ${studentRows}`);
-        assert(studentRows > 0, "Students Master List has student rows");
+        console.log(`   * Student Details row count: ${studentRows}`);
+        assert(studentRows > 0, "Student Details has student rows");
+
+        // Verify exact 8 table columns in specific order
+        const expectedColumns = [
+            "SNo.",
+            "TeamID",
+            "Enrollment",
+            "Student Name",
+            "Mobile No.",
+            "Email Id",
+            "Project",
+            "Allotment"
+        ];
+        const headerRow = studentsSheet.getRow(1);
+        expectedColumns.forEach((expectedCol, idx) => {
+            const actualVal = headerRow.getCell(idx + 1).value?.toString();
+            assert(actualVal === expectedCol, `Column ${idx + 1} matches '${expectedCol}' (got: '${actualVal}')`);
+        });
+        console.log("   * All 8 Student Details columns verified in specific order matching mockup");
+
+        // Verify TeamID ordering: First team must be A-01
+        const firstTeamId = studentsSheet.getCell("B2").value?.toString();
+        console.log(`   * First team rendered in Sheet 2: '${firstTeamId}'`);
+        assert(firstTeamId === "A-01", "Team A-01 is rendered first in natural order", firstTeamId);
+
+        // Verify sequential SNo
+        assert(studentsSheet.getCell("A2").value === 1, "Row 1 SNo is 1");
+        assert(studentsSheet.getCell("A3").value === 2, "Row 2 SNo is 2");
+
+        // Print first 6 rows (Team A-01 cohort) to inspect actual formatting
+        for (let r = 2; r <= Math.min(7, studentsSheet.rowCount); r++) {
+            const row = studentsSheet.getRow(r);
+            const rowVals: string[] = [];
+            for (let c = 1; c <= 8; c++) {
+                const cellVal = row.getCell(c).value;
+                const displayVal = typeof cellVal === "string" ? cellVal.replace(/\n/g, " / ") : cellVal;
+                rowVals.push(`${expectedColumns[c - 1]}: "${displayVal}"`);
+            }
+            console.log(`   * Row ${r - 1} -> ${rowVals.join(" | ")}`);
+        }
     }
 
     // -------------------------------------------------------------

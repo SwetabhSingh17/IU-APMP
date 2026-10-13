@@ -110,7 +110,7 @@ This document outlines suggested architectural, security, and maintenance improv
     3. **Multi-Page University Excel Export (Single Workbook with Multiple Sheets):**
        - A one-click export button that compiles and downloads an official University Excel workbook (`.xlsx`) containing multiple dedicated worksheets:
          - **Sheet 1: Overview & Summary** — High-level statistics: total students, supervisors, teams, topics proposed/approved/pending, BCA vs MCA breakdown, completion metrics.
-         - **Sheet 2: Students Master List** — Enrollment No, Full Name, Email, Mobile, Course, Team Name/ID, Project Topic Code, Topic Title, Assigned Supervisor, Progress %, Status.
+         - **Sheet 2: Student Details** — SNo., TeamID, Enrollment, Student Name, Mobile No., Email Id, Project (Code & Title), Allotment (Supervisor Name, Designation, Mobile, Email). Naturally grouped by Team ID with vertically merged team cohort cells.
          - **Sheet 3: Faculty Supervisors** — Emp ID, Name (with Prefix), Designation, Department, Email, Mobile, Topics Submitted, Approved Topics, Assigned Teams, Mentorship Load (e.g., 3/5).
          - **Sheet 4: Project Teams / Groups** — Team ID, Team Name, Course, Size, Leader Name & Enrollment, Complete Member Roster, Assigned Supervisor, Assigned Topic Code & Title.
          - **Sheet 5: Project Topics Catalog** — Topic Code (PUGID), Title, Description, Course, Project Type, Technology Stack, Complexity, Proposing Supervisor, Approval Status, Allotted Group.
@@ -246,6 +246,9 @@ This document outlines suggested architectural, security, and maintenance improv
 - [x] **Supervisor Management Summary RBAC Hardening** — **COMPLETED**
   - **Affected Files:** `server/routes/admin.ts`, `client/src/pages/supervisor-management.tsx`, `client/src/App.tsx`, `client/src/components/layout/sidebar.tsx`
   - **Resolution:** Restricted `/api/admin/supervisors-summary` strictly to `UserRole.ADMIN` and `UserRole.COORDINATOR` to prevent unauthorized supervisor access to unfiltered faculty directory and team telemetry. Synchronized query `enabled` flags on `client/src/pages/supervisor-management.tsx` to execute exclusively for Administrators and Coordinators matching page route access.
+- [x] **University Excel Export Layout Alignment & Natural Team ID Cohort Grouping** — **COMPLETED**
+  - **Affected Files:** `server/db-storage.ts`, `client/src/pages/system-management.tsx`, `scripts/verify_backup_and_excel_export.ts`
+  - **Resolution:** Updated Sheet 2 of the official university workbook (`generateUniversityExcelReport()`) to the standardized "Student Details" worksheet. Enforced natural alphanumeric Team ID sorting (`A-01` before `A-02` before `A-10`, followed by `B-01`, etc.), displaying complete team rosters consecutively with team leaders first. Implemented vertical cell merging for team-level parameters (`TeamID`, `Project`, and `Allotment`) across all members of each cohort, matching the official administrative template. Formatted supervisor allotment details with clean multi-line wrapping and centered alignment while maintaining continuous 1-based sequential student numbering (`SNo.`). Verified with 78/78 automated test assertions with zero data mutations.
 
 ---
 

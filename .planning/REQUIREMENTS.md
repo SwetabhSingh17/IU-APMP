@@ -30,7 +30,7 @@ See [milestones/v2.1.0-REQUIREMENTS.md](milestones/v2.1.0-REQUIREMENTS.md) for f
 
 ### University Reporting & Exports
 
-- [x] **EXCEL-01**: Multi-sheet university Excel workbook export generating 8 dedicated worksheets (Overview, Students Master, Faculty Supervisors, Project Teams, Project Topics, Student Projects, Assessments, Milestones) for institutional use
+- [x] **EXCEL-01**: Multi-sheet university Excel workbook export generating 8 dedicated worksheets (Overview & Summary, Student Details, Faculty Supervisors, Project Teams, Project Topics, Student Projects, Assessments, Milestones) with natural Team ID cohort grouping and vertically merged team cells for institutional use
 
 ### Security & Access Control
 

@@ -21,7 +21,7 @@ See: .planning/PROJECT.md (updated 2026-10-06)
 ## Current Position
 
 Milestone: v2.3.1 (Active Release)
-Last activity: 2026-10-11 — Completed v2.3.1 Features (Transaction Atomicity, pg_advisory_xact_lock PUGID Serialization, Accepted Member Filtering, Admin/Coordinator RBAC Hardening)
+Last activity: 2026-10-13 — Completed v2.3.1 Features (Transaction Atomicity, pg_advisory_xact_lock Serialization, RBAC Hardening, Excel Student Details Natural Cohort Grouping & Merged Cells)
 
 ## Performance Metrics
 

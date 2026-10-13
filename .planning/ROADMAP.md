@@ -30,7 +30,7 @@ This roadmap defines the evolution cycle of the Integral University Academic Pro
   2. Backup & Export button generates a complete archive (zip/folder) containing all 8 tables (`student_groups`, `users`, `student_group_members`, `project_topics`, `student_projects`, `project_assessments`, `project_milestones`, `notifications`), manifest with counts, and SQL insert dump, saving a copy in `database/backups/`.
   3. Import & Restore reconstructs the portal with exact fidelity in topological order (`groups` → `users` → `members` → `topics` → `projects` → `assessments` → `milestones` → `notifications`) inside an atomic transaction with automated pre-restore safety snapshot.
   4. PostgreSQL sequence counters are safely aligned past imported maximum IDs across all tables.
-  5. Multi-Page Excel Export generates an official single `.xlsx` workbook containing 8 dedicated worksheets for departmental and university administrative reporting.
+  5. Multi-Page Excel Export generates an official single `.xlsx` workbook containing 8 dedicated worksheets (including naturally sorted Student Details with merged team cohort cells) for departmental and university administrative reporting.
   6. All operations maintain 100% backward compatibility and zero disruption to the active running production database.
 
 **Plans**: 4 plans
@@ -38,7 +38,7 @@ This roadmap defines the evolution cycle of the Integral University Academic Pro
 Plans:
 - [x] 01-01: A-Z Complete Portal Backup Engine & Server Archive Packaging
 - [x] 01-02: High-Fidelity Topological Restore Engine with Atomic Transaction & Pre-Restore Snapshot
-- [x] 01-03: Multi-Sheet University Excel Report Generator & Project Renaming to IU-APMP
+- [x] 01-03: Multi-Sheet University Excel Report Generator & Project Renaming to IU-APMP (with Natural TeamID Cohort Alignment & Vertical Cell Merging)
 - [x] 01-04: System Management UI Console Upgrade & Non-Destructive Test Suite
 
 ### Phase 2: Security Hardening & Registration Controls

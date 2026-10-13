@@ -55,7 +55,7 @@ If you are on a Windows Server (which lacks the Microsoft Store for automated in
 3. Open the **Command Prompt** (type `cmd` in your Windows search bar, right-click and "Run as Administrator").
 4. Navigate to your project folder (e.g. your Downloads folder):
    ```cmd
-   cd Downloads\APMS
+   cd Downloads\IU-APMP
    ```
 5. Install the required tools:
    ```cmd
@@ -96,7 +96,7 @@ If you are on a Windows Server (which lacks the Microsoft Store for automated in
 2. Download Postgres app from **postgresapp.com** and install it.
 3. Open your Terminal and navigate to the project folder:
    ```bash
-   cd path/to/APMS
+   cd path/to/IU-APMP
    ```
 4. Install the required tools:
    ```bash
@@ -118,7 +118,7 @@ If you are on a Windows Server (which lacks the Microsoft Store for automated in
 
 #### Option A: The Automated Setup Assistant
 1. Press `Ctrl`+`Alt`+`T` to open your Terminal.
-2. Type `cd path/to/APMS/Setup_Assistant` (replace with your actual folder path) and press Enter.
+2. Type `cd path/to/IU-APMP/Setup_Assistant` (replace with your actual folder path) and press Enter.
 3. Type this magic spell and press Enter:
    ```bash
    chmod +x install_mac_linux.sh
@@ -188,7 +188,7 @@ You are amazing! You just built a real website all by yourself! Give yourself a 
 When you are done playing and want to make the website super fast:
 
 **For Windows Users (one click!):**  
-Just double-click the **`start_server.bat`** file in your APMS folder. It does everything by itself:
+Just double-click the **`start_server.bat`** file in your IU-APMP folder. It does everything by itself:
 1. Checks that Node.js is installed
 2. Creates your `.env` settings file on the very first run (and tells you what to fill in)
 3. Installs all the building blocks

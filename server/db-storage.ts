@@ -2650,10 +2650,10 @@ export class DBStorage {
         column.eachCell?.({ includeEmpty: false }, (cell) => {
           const val = cell.value ? String(cell.value) : "";
           if (val.length > maxLen) {
-            maxLen = Math.min(val.length, 50);
+            maxLen = Math.min(val.length, 65);
           }
         });
-        column.width = maxLen + 4;
+        column.width = Math.max(column.width || 0, maxLen + 4);
       });
     };
 
@@ -2681,6 +2681,19 @@ export class DBStorage {
       const list = membersByGroup.get(m.groupId) || [];
       list.push(m);
       membersByGroup.set(m.groupId, list);
+    });
+
+    // Build reverse map from student user ID to group
+    const studentGroupMap = new Map<number, typeof allGroups[0]>();
+    allMembers.forEach(m => {
+      if (groupMap.has(m.groupId)) {
+        studentGroupMap.set(m.userId, groupMap.get(m.groupId)!);
+      }
+    });
+    allUsers.forEach(u => {
+      if (u.groupId && groupMap.has(u.groupId)) {
+        studentGroupMap.set(u.id, groupMap.get(u.groupId)!);
+      }
     });
 
     const students = allUsers.filter(u => u.role === UserRole.STUDENT);
@@ -2721,52 +2734,221 @@ export class DBStorage {
     styleWorksheet(ws1);
 
     // ==========================================
-    // Sheet 2: Students Master List
+    // Sheet 2: Student Details
     // ==========================================
-    const ws2 = workbook.addWorksheet("Students Master List", { views: [{ showGridLines: true }] });
+    const ws2 = workbook.addWorksheet("Student Details", { views: [{ showGridLines: true }] });
     ws2.columns = [
-      { header: "S.No", key: "sno", width: 8 },
-      { header: "Enrollment Number", key: "enrollment", width: 18 },
-      { header: "Student Name", key: "name", width: 25 },
-      { header: "Email Address", key: "email", width: 28 },
-      { header: "Mobile Number", key: "mobile", width: 16 },
-      { header: "Course", key: "course", width: 10 },
-      { header: "Team ID", key: "teamId", width: 16 },
-      { header: "Team Name", key: "teamName", width: 25 },
-      { header: "Assigned Topic Code", key: "topicCode", width: 18 },
-      { header: "Assigned Topic Title", key: "topicTitle", width: 35 },
-      { header: "Assigned Supervisor", key: "supervisor", width: 25 },
-      { header: "Progress (%)", key: "progress", width: 14 },
-      { header: "Project Status", key: "status", width: 16 }
+      { header: "SNo.", key: "sno", width: 8 },
+      { header: "TeamID", key: "teamId", width: 14 },
+      { header: "Enrollment", key: "enrollment", width: 18 },
+      { header: "Student Name", key: "studentName", width: 25 },
+      { header: "Mobile No.", key: "mobile", width: 16 },
+      { header: "Email Id", key: "email", width: 28 },
+      { header: "Project", key: "project", width: 38 },
+      { header: "Allotment", key: "allotment", width: 42 }
     ];
 
     const projectByStudent = new Map<number, typeof allProjects[0]>();
     allProjects.forEach(p => projectByStudent.set(p.studentId, p));
 
-    students.forEach((student, idx) => {
-      const group = student.groupId ? groupMap.get(student.groupId) : undefined;
-      const project = projectByStudent.get(student.id);
-      const topic = project ? topicMap.get(project.topicId) : undefined;
-      const supervisor = group?.supervisorId ? userMap.get(group.supervisorId) : (topic?.submittedById ? userMap.get(topic.submittedById) : undefined);
-      const supervisorName = supervisor ? `${supervisor.prefix || ''} ${supervisor.firstName} ${supervisor.lastName}`.trim() : "Not Assigned";
+    // Group students by team
+    const groupStudentsMap = new Map<number, typeof students>();
+    const ungroupedStudents: typeof students = [];
 
-      ws2.addRow({
-        sno: idx + 1,
-        enrollment: student.enrollmentNumber || "N/A",
-        name: `${student.firstName} ${student.lastName}`.trim(),
-        email: student.email,
-        mobile: student.mobile || "N/A",
-        course: (student.course || "N/A").toUpperCase(),
-        teamId: group ? (group.projectTeamId || `GRP-${group.id}`) : "Individual",
-        teamName: group ? group.name : "N/A",
-        topicCode: topic?.topicCode || "N/A",
-        topicTitle: topic?.title || "Not Assigned",
-        supervisor: supervisorName,
-        progress: project ? `${project.progress}%` : "0%",
-        status: project ? (project.status || "In Progress") : "Pending Topic Selection"
+    // Map member sequence for stable intra-team ordering matching registration/group creation
+    const memberSequenceMap = new Map<number, number>();
+    allMembers.forEach((m, idx) => {
+      memberSequenceMap.set(m.userId, idx);
+    });
+
+    students.forEach((student) => {
+      const group = studentGroupMap.get(student.id);
+      if (group) {
+        const list = groupStudentsMap.get(group.id) || [];
+        list.push(student);
+        groupStudentsMap.set(group.id, list);
+      } else {
+        ungroupedStudents.push(student);
+      }
+    });
+
+    // Sort members within each group (creator/leader first, then by membership sequence, then enrollment)
+    groupStudentsMap.forEach((members, groupId) => {
+      const group = groupMap.get(groupId);
+      members.sort((a, b) => {
+        if (group?.createdById === a.id) return -1;
+        if (group?.createdById === b.id) return 1;
+        const seqA = memberSequenceMap.get(a.id) ?? 999999;
+        const seqB = memberSequenceMap.get(b.id) ?? 999999;
+        if (seqA !== seqB) return seqA - seqB;
+        return (a.enrollmentNumber || "").localeCompare(b.enrollmentNumber || "");
       });
     });
-    styleWorksheet(ws2);
+
+    // Collect and naturally sort groups by TeamID (A-01, A-02, ..., B-01, etc.)
+    const sortedGroups = Array.from(allGroups)
+      .filter(g => (groupStudentsMap.get(g.id) || []).length > 0)
+      .sort((a, b) => {
+        const teamA = (a.projectTeamId || a.name || `GRP-${a.id}`).trim();
+        const teamB = (b.projectTeamId || b.name || `GRP-${b.id}`).trim();
+        return teamA.localeCompare(teamB, undefined, { numeric: true, sensitivity: "base" });
+      });
+
+    // Ungrouped students sorted by enrollment
+    ungroupedStudents.sort((a, b) => (a.enrollmentNumber || "").localeCompare(b.enrollmentNumber || ""));
+
+    let serialCounter = 1;
+
+    const renderCohort = (
+      teamIdDisplay: string,
+      cohortMembers: typeof students,
+      projectDisplay: string,
+      allotmentDisplay: string
+    ) => {
+      if (cohortMembers.length === 0) return;
+
+      const startRow = ws2.rowCount + 1;
+      const cohortSize = cohortMembers.length;
+
+      cohortMembers.forEach((student, idx) => {
+        ws2.addRow({
+          sno: serialCounter++,
+          teamId: idx === 0 ? teamIdDisplay : "",
+          enrollment: student.enrollmentNumber || "N/A",
+          studentName: `${student.firstName || ''} ${student.lastName || ''}`.replace(/\s+/g, ' ').trim(),
+          mobile: student.mobile || "N/A",
+          email: student.email || "N/A",
+          project: idx === 0 ? projectDisplay : "",
+          allotment: idx === 0 ? allotmentDisplay : ""
+        });
+      });
+
+      const endRow = startRow + cohortSize - 1;
+
+      // Apply borders, row heights, and alignments to each cell in the cohort
+      for (let r = startRow; r <= endRow; r++) {
+        const row = ws2.getRow(r);
+        row.height = 22;
+        for (let c = 1; c <= 8; c++) {
+          const cell = row.getCell(c);
+          cell.font = cellFont;
+          cell.border = thinBorder;
+          cell.alignment = { vertical: "middle" };
+        }
+        row.getCell(1).alignment = { vertical: "middle", horizontal: "center" }; // SNo
+        row.getCell(3).alignment = { vertical: "middle", horizontal: "center" }; // Enrollment
+        row.getCell(4).alignment = { vertical: "middle", horizontal: "left" };   // Student Name
+        row.getCell(5).alignment = { vertical: "middle", horizontal: "center" }; // Mobile
+        row.getCell(6).alignment = { vertical: "middle", horizontal: "left" };   // Email
+      }
+
+      // If team has multiple members, merge TeamID, Project, and Allotment vertically
+      if (cohortSize > 1) {
+        ws2.mergeCells(startRow, 2, endRow, 2);
+        ws2.mergeCells(startRow, 7, endRow, 7);
+        ws2.mergeCells(startRow, 8, endRow, 8);
+      }
+
+      // Style merged / primary team cells
+      const teamCell = ws2.getCell(startRow, 2);
+      teamCell.font = { ...cellFont, bold: true };
+      teamCell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+
+      const projCell = ws2.getCell(startRow, 7);
+      projCell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+
+      const allotCell = ws2.getCell(startRow, 8);
+      allotCell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    };
+
+    sortedGroups.forEach((group) => {
+      const cohortMembers = groupStudentsMap.get(group.id) || [];
+      if (cohortMembers.length === 0) return;
+
+      const teamIdDisplay = group.projectTeamId || group.name || `GRP-${group.id}`;
+
+      // Resolve topic for the group
+      let topic: typeof allTopics[0] | undefined;
+      for (const m of cohortMembers) {
+        const p = projectByStudent.get(m.id);
+        if (p && topicMap.has(p.topicId)) {
+          topic = topicMap.get(p.topicId);
+          break;
+        }
+      }
+
+      let projectDisplay = "Not Assigned";
+      if (topic) {
+        const pCode = topic.topicCode || `PUGID${topic.id}`;
+        projectDisplay = `${pCode} - ${topic.title}`;
+      }
+
+      // Resolve supervisor (from group mentor assignment or topic author)
+      const supervisor = group.supervisorId
+        ? userMap.get(group.supervisorId)
+        : (topic?.submittedById ? userMap.get(topic.submittedById) : undefined);
+
+      let allotmentDisplay = "Not Assigned";
+      if (supervisor) {
+        const supName = `${supervisor.prefix ? supervisor.prefix + ' ' : ''}${supervisor.firstName || ''} ${supervisor.lastName || ''}`.replace(/\s+/g, ' ').trim();
+        const supDesig = supervisor.designation || "Faculty";
+        const supMob = supervisor.mobile || "N/A";
+        const supEmail = supervisor.email || "N/A";
+        allotmentDisplay = `${supName}\n${supDesig}\n${supMob} / ${supEmail}`;
+      }
+
+      renderCohort(teamIdDisplay, cohortMembers, projectDisplay, allotmentDisplay);
+    });
+
+    // Add ungrouped/individual students at the end
+    ungroupedStudents.forEach((student) => {
+      const p = projectByStudent.get(student.id);
+      const topic = p ? topicMap.get(p.topicId) : undefined;
+      const supervisor = topic?.submittedById ? userMap.get(topic.submittedById) : undefined;
+
+      let projectDisplay = "Not Assigned";
+      if (topic) {
+        const pCode = topic.topicCode || `PUGID${topic.id}`;
+        projectDisplay = `${pCode} - ${topic.title}`;
+      }
+
+      let allotmentDisplay = "Not Assigned";
+      if (supervisor) {
+        const supName = `${supervisor.prefix ? supervisor.prefix + ' ' : ''}${supervisor.firstName || ''} ${supervisor.lastName || ''}`.replace(/\s+/g, ' ').trim();
+        const supDesig = supervisor.designation || "Faculty";
+        const supMob = supervisor.mobile || "N/A";
+        const supEmail = supervisor.email || "N/A";
+        allotmentDisplay = `${supName}\n${supDesig}\n${supMob} / ${supEmail}`;
+      }
+
+      renderCohort("Individual", [student], projectDisplay, allotmentDisplay);
+    });
+
+    // Style worksheet header row and columns
+    const ws2HeaderRow = ws2.getRow(1);
+    ws2HeaderRow.height = 26;
+    ws2HeaderRow.eachCell((cell) => {
+      cell.fill = headerFill;
+      cell.font = headerFont;
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    });
+
+    ws2.columns.forEach((column) => {
+      let maxLen = 10;
+      if (column.header) {
+        maxLen = Math.max(maxLen, String(column.header).length);
+      }
+      column.eachCell?.({ includeEmpty: false }, (cell) => {
+        const val = cell.value ? String(cell.value) : "";
+        const lines = val.split("\n");
+        lines.forEach(line => {
+          if (line.length > maxLen) {
+            maxLen = Math.min(line.length, 50);
+          }
+        });
+      });
+      column.width = Math.max(column.width || 0, maxLen + 4);
+    });
 
     // ==========================================
     // Sheet 3: Faculty Supervisors

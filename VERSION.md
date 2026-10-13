@@ -50,6 +50,12 @@
 4. **Supervisor Management Summary RBAC Hardening** —
    - Restricted `/api/admin/supervisors-summary` strictly to `UserRole.ADMIN` and `UserRole.COORDINATOR` to prevent unauthorized supervisor access to unfiltered faculty directory and team telemetry.
    - Synchronized query `enabled` flags on `client/src/pages/supervisor-management.tsx` to execute exclusively for Administrators and Coordinators matching page route access.
+5. **Institutional Excel Report Layout Alignment & Natural Team ID Cohort Grouping** —
+   - **Student Details Worksheet Standardisation**: Structured Sheet 2 with exact columns in specific order: `SNo.`, `TeamID`, `Enrollment`, `Student Name`, `Mobile No.`, `Email Id`, `Project`, and `Allotment`.
+   - **Natural Team ID Cohort Sorting**: Implemented natural alphanumeric sorting on team identifiers (`A-01` before `A-02` before `A-10`, followed by `B-01`, etc.), displaying complete student team rosters consecutively with team leaders first.
+   - **Vertical Cell Merging**: Applied multi-row vertical cell merging across `TeamID` (bold, centered), `Project` (centered, text-wrapped), and `Allotment` (centered, multi-line wrapped supervisor name, designation, and contact details) for each team cohort.
+   - **Sequential Student Indexing**: Preserved continuous sequential row numbering (`1, 2, 3...`) across individual student rows while neatly appending unassigned students at the bottom.
+   - **Automated Verification**: Expanded `scripts/verify_backup_and_excel_export.ts` to 78 automated test assertions verifying column order, cohort sorting, and data integrity with zero database modifications.
 
 ---
 
@@ -102,7 +108,7 @@
 4. **Official Multi-Page University Excel Report Generator (`.xlsx`)** —
    - Implemented `generateUniversityExcelReport()` in `server/db-storage.ts` using `ExcelJS` producing an official institutional 8-sheet master workbook:
      - **Sheet 1: Overview & Summary**: High-level KPIs, BCA vs MCA distribution, completion rates, and department statistics.
-     - **Sheet 2: Students Master List**: 700+ student directory with enrollment numbers, mobile numbers, team assignments, topic codes, titles, supervisors, and progress.
+     - **Sheet 2: Student Details**: 700+ student directory ordered by natural TeamID cohorts (e.g. A-01, A-02) with vertically merged team cells (TeamID, Project, Allotment) and individual student records.
      - **Sheet 3: Faculty Supervisors**: 60+ supervisor directory with employee IDs, designations, departments, contact info, and mentorship loads.
      - **Sheet 4: Project Teams**: 150+ team directory with full member rosters, assigned supervisors, and topic allotments.
      - **Sheet 5: Project Topics Catalog**: 300+ topic directory with PUGID codes, courses, tech stacks, complexity levels, supervisors, and approval statuses.
