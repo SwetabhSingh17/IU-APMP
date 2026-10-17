@@ -257,7 +257,7 @@ To verify that your installation is working properly and all features (Excel bul
    npm run check
    ```
 
-2. Run the complete automated test suite across all 10 suites:
+2. Run the complete automated test suite across all 12 suites:
    ```bash
    npm test
    ```

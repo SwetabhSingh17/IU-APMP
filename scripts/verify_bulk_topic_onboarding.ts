@@ -193,7 +193,7 @@ async function runVerification() {
   // TEST 6: Complete Bulk Ingestion or Verification of All 61 Faculty Rows
   // -------------------------------------------------------------
   console.log("\n--- TEST 6: Complete Bulk Ingestion / Verification (All 61 Faculty, 305 Topics) ---");
-  let dbTopics = await db.select().from(projectTopics).where(and(isNotNull(projectTopics.topicCode), like(projectTopics.topicCode, "PUGID26%")));
+  let dbTopics = await db.select().from(projectTopics).where(and(isNotNull(projectTopics.topicCode), like(projectTopics.topicCode, "PUGID26%"), eq(projectTopics.isDeleted, false)));
 
   if (dbTopics.length < 305) {
     const fullResult = await storage.bulkUploadProjectTopics("BCA", parsed.rows, { autoApprove: true });
@@ -201,7 +201,7 @@ async function runVerification() {
     assert(fullResult.matchedSupervisors === 61, "All 61 supervisors matched and verified", `Got ${fullResult.matchedSupervisors}`);
     assert(fullResult.unmatchedSupervisors === 0, "Zero supervisors unmatched in full dataset", `Got ${fullResult.unmatchedSupervisors}`);
     assert(fullResult.totalTopicsCreated === 305, "All 305 project topics successfully inserted into PostgreSQL", `Got ${fullResult.totalTopicsCreated}`);
-    dbTopics = await db.select().from(projectTopics).where(and(isNotNull(projectTopics.topicCode), like(projectTopics.topicCode, "PUGID26%")));
+    dbTopics = await db.select().from(projectTopics).where(and(isNotNull(projectTopics.topicCode), like(projectTopics.topicCode, "PUGID26%"), eq(projectTopics.isDeleted, false)));
   }
 
   // Verify database state: query all topics from PostgreSQL

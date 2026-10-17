@@ -10,7 +10,9 @@
 
 import "dotenv/config";
 import { DBStorage } from "../server/db-storage";
-import { UserRole } from "@shared/schema";
+import { UserRole, projectTopics, notifications } from "@shared/schema";
+import { db } from "../server/db";
+import { eq } from "drizzle-orm";
 
 function assert(condition: boolean, message: string) {
   if (!condition) {
@@ -58,9 +60,9 @@ async function runPhase6Verification() {
 
   // --- Clean Up ---
   console.log("\nCleaning up test topic...");
-  await storage.deleteProjectTopic(directTopic.id);
+  await db.delete(projectTopics).where(eq(projectTopics.id, directTopic.id));
   if (foundNotification) {
-    await storage.markNotificationAsRead(foundNotification.id);
+    await db.delete(notifications).where(eq(notifications.id, foundNotification.id));
   }
   console.log("  ✅ Test records cleaned up successfully.");
 

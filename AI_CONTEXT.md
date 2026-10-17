@@ -191,6 +191,9 @@ APMS/
     ├── verify_supervisor_onboarding_and_rbac.ts     # Faculty onboarding suite (npm run test:supervisor)
     ├── verify_bulk_topic_onboarding.ts              # Topic bulk upload & PUGID suite (npm run test:topics)
     ├── verify_backup_and_excel_export.ts            # Backup, topological restore & university Excel export suite (npm run test:backup)
+    ├── verify_supervisor_conflict_and_pugid_fix.ts  # Supervisor conflict loop, advisory PUGID locking & single-group constraint suite (npm run test:conflicts)
+    ├── verify_user_project_status.ts                # Dynamic student project status badges & supervisor metrics suite (npm run test:user-status)
+    ├── update_student_mobiles_from_excel.ts         # Ingests student mobiles from official CA321 roster
     └── e2e_verify.ts                                # End-to-end integration test suite (npm run test:e2e)
 ```
 

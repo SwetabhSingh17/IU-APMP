@@ -16,12 +16,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-06)
 
 **Core value:** Streamline and govern the academic project lifecycle with strict course isolation (BCA vs MCA), balanced faculty mentorship workload limits, and transparent real-time status reflection across all departmental stakeholders.
-**Current focus:** Milestone v2.3.1 Complete (Transactional Conflict Atomicity, Advisory PUGID Serialization & Governance Hardening)
+**Current focus:** Milestone v2.3.2 Complete (Excel Faculty EmpID Ordering, Dual-Membership Guard, Mobile Backfill & User Status Live Telemetry)
 
 ## Current Position
 
-Milestone: v2.3.1 (Active Release)
-Last activity: 2026-10-13 — Completed v2.3.1 Features (Transaction Atomicity, pg_advisory_xact_lock Serialization, RBAC Hardening, Excel Student Details Natural Cohort Grouping & Merged Cells)
+Milestone: v2.3.2 (Active Release)
+Last activity: 2026-10-14 — Completed v2.3.2 Features (Faculty EmpID Ordering in Excel, Infinite Conflict Loop Fix, Single-Group Accepted Constraint, 100% Student Mobile Backfill, Live Student Project Status Badges & Supervisor Topics Telemetry)
 
 ## Performance Metrics
 

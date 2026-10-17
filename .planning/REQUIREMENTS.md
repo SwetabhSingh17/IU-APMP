@@ -1,7 +1,7 @@
 # Requirements: IU-APMP (Integral University Academic Project Management Portal)
 
 **Defined:** 2026-10-06
-**Version:** v2.3.1
+**Version:** v2.3.2
 **Core Value:** Streamline and govern the academic project lifecycle with strict course isolation (BCA vs MCA), balanced faculty mentorship workload limits, and transparent real-time status reflection across all departmental stakeholders.
 
 ## Completed Requirements (Archived in v2.1.0)

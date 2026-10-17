@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Integral University Academic Project Management Portal (IU-APMP v2.3.1) is a specialized web platform for students, faculty supervisors, project coordinators, and administrators in the Department of Computer Application. It centralizes and automates the entire academic final-year project lifecycle including team formation, supervisor allotment, project topic approval, student topic selection, milestone tracking, and supervisor evaluations.
+Integral University Academic Project Management Portal (IU-APMP v2.3.2) is a specialized web platform for students, faculty supervisors, project coordinators, and administrators in the Department of Computer Application. It centralizes and automates the entire academic final-year project lifecycle including team formation, supervisor allotment, project topic approval, student topic selection, milestone tracking, and supervisor evaluations.
 
 ## Core Value
 
@@ -30,6 +30,10 @@ Streamline and govern the academic project lifecycle with strict course isolatio
 - ✓ **SUPERVISOR-CONFLICT-RESOLUTION**: Dual-action supervisor conflict detection and resolution modal (Option 1 clone with new PUGID vs Option 2 migrate) with atomic transactions, advisory locking, and accepted member precision — validated (v2.3.1)
 - ✓ **DYNAMIC-TELEMETRY**: Real-time supervisor mentorship telemetry ratio (`Active Teams Allotted / Total Projects Submitted`) and dynamic workload capacity formula — validated (v2.3.0)
 - ✓ **SUPERVISOR-MGMT-RBAC**: Strict Administrator and Coordinator governance over `/supervisor-management` and `/api/admin/supervisors-summary` — validated (v2.3.1)
+- ✓ **EXCEL-FACULTY-SORTING**: Arrange Sheet 3 (Faculty Supervisors) in natural alphanumeric ascending order of EmpID with sequential S.No numbering in master university Excel export — validated (v2.3.2)
+- ✓ **DUAL-MEMBERSHIP-GUARD**: Partial unique PostgreSQL index `idx_student_group_members_unique_accepted` preventing concurrent accepted team memberships and resolving circular conflict loops — validated (v2.3.2)
+- ✓ **STUDENT-MOBILE-PROVISIONING**: 100% verified student mobile number population from official CA321 Excel roster without data loss — validated (v2.3.2)
+- ✓ **USER-STATUS-TELEMETRY**: Enriched relational query joining accepted group members, active student projects, and allotted topics to render live status badges and supervisor topic counts — validated (v2.3.2)
 
 ### Future Goals (Next Milestones)
 

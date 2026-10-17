@@ -290,8 +290,10 @@ All configuration is managed through a `.env` file at the project root.
 | `npm run build` | Build for production (client + server) |
 | `npm start` | Start production server |
 | `npm run check` | Run TypeScript type checking (`tsc`) |
-| `npm test` | Run TypeScript check and complete automated test suite across all 10 test suites |
+| `npm test` | Run TypeScript check and complete automated test suite across all 12 test suites |
 | `npm run test:backup` | Run complete A-Z backup export, topological restore ordering, and multi-sheet university excel verification suite |
+| `npm run test:conflicts` | Run supervisor conflict loop resolution, pg_advisory_xact_lock & single-group constraint verification suite |
+| `npm run test:user-status` | Run live student project status badges & supervisor metrics verification suite |
 | `npm run test:search` | Run multi-word search engine tokenization & sub-millisecond benchmark suite |
 | `npm run test:admin-topics` | Run direct topic creation with faculty assignment verification suite |
 | `npm run test:teams` | Run team management CRUD, safe dissolution & supervisor optional verification suite |

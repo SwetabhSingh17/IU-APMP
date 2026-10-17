@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap defines the evolution cycle of the Integral University Academic Project Management Portal (IU-APMP v2.3.1). It tracks delivered capabilities across search engine indexing, A-Z backup/topological restore, multi-sheet Excel reporting, dual-action supervisor conflict resolution, dynamic telemetry, transactional atomicity, and ongoing architectural hardening.
+This roadmap defines the evolution cycle of the Integral University Academic Project Management Portal (IU-APMP v2.3.2). It tracks delivered capabilities across search engine indexing, A-Z backup/topological restore, multi-sheet Excel reporting, dual-action supervisor conflict resolution, dynamic telemetry, transactional atomicity, and ongoing architectural hardening.
 
 ## Completed Milestones
 
@@ -10,6 +10,7 @@ This roadmap defines the evolution cycle of the Integral University Academic Pro
 - **v2.2.0: IU-APMP Institutional Rebranding, Complete A-Z Backup & Multi-Page Excel Export** (Completed 2026-10-07)
 - **v2.3.0: Dual-Action Supervisor Conflict Resolution & Dynamic Mentorship Telemetry** (Completed 2026-10-11)
 - **v2.3.1: Transactional Conflict Atomicity, Advisory PUGID Serialization & Governance Hardening** (Completed 2026-10-11)
+- **v2.3.2: Excel Faculty EmpID Ordering, Dual-Membership Guard, Mobile Backfill & User Status Live Telemetry** (Completed 2026-10-14)
 
 ## Future Phases
 
